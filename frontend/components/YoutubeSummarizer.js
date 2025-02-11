@@ -1,7 +1,7 @@
 const YouTubeSummarizer = {
     template: `
       <div class="card p-4">
-        <h3>YouTube Video Summarizer</h3>
+        <h3>AI Powered YouTube Video Summarizer</h3>
         <p>Enter a YouTube link to add it to your list.</p>
   
         <div class="input-group mb-3">
@@ -50,7 +50,7 @@ const YouTubeSummarizer = {
   
         const res = await fetch("/api/youtube_links", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "Authentication-Token": this.$store.state.authen_token },
           body: JSON.stringify({ url: this.newLink }),
         });
   
@@ -66,6 +66,7 @@ const YouTubeSummarizer = {
       async deleteLink(linkId) {
         const res = await fetch(`/api/youtube_links/${linkId}`, {
           method: "DELETE",
+          headers: { "Authentication-Token": this.$store.state.authen_token }
         });
   
         if (res.ok) {
@@ -76,7 +77,10 @@ const YouTubeSummarizer = {
       },
   
       async summarizeLinks() {
-        const res = await fetch("/api/summarize", { method: "GET" });
+        const res = await fetch("/api/summarize", { 
+        method: "GET",
+        headers: { "Authentication-Token": this.$store.state.authen_token }
+         });
   
         if (res.ok) {
           const data = await res.json();
@@ -88,7 +92,9 @@ const YouTubeSummarizer = {
     },
   
     async mounted() {
-      const res = await fetch("/api/youtube_links");
+      const res = await fetch("/api/youtube_links", {
+        headers: { "Authentication-Token": this.$store.state.authen_token },
+    });
   
       if (res.ok) {
         this.links = await res.json();

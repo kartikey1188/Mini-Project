@@ -219,6 +219,71 @@ class SummarizeYouTubeLinks(Resource):
             app.logger.error(traceback.format_exc())
             return {"Error": "Failed to generate summary"}, 500
 
+from flask import request
+from backend.models import db, TextFile
+from flask_restful import Resource
+from flask_security import auth_required, current_user
+import os
+from werkzeug.utils import secure_filename
+
+class PDFFileResource(Resource):
+    
+    @auth_required('token')
+    def get(self):
+        files = TextFile.query.filter_by(user_id=current_user.id).all()
+        return [{'id': file.id, 'file_name': file.file_name} for file in files], 200
+
+    @auth_required('token')
+    def post(self):
+        if 'file' not in request.files:
+            return {'Error': 'No file provided'}, 400
+
+        file = request.files['file']
+
+        if file.filename == '':
+            return {'Error': 'No file selected'}, 400
+
+        filename = secure_filename(file.filename)
+        filepath = os.path.join("uploads", filename)  # Adjust path as needed
+
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        file.save(filepath)
+
+        new_file = TextFile(file_name=filename, file_path=filepath, user_id=current_user.id)
+        db.session.add(new_file)
+        db.session.commit()
+
+        return {'Message': 'File uploaded successfully'}, 200
+
+class PDFFileDeleteResource(Resource):
+    
+    @auth_required('token')
+    def delete(self, id):
+        file = TextFile.query.filter_by(id=id, user_id=current_user.id).first()
+        if not file:
+            return {'Error': 'File not found'}, 404
+
+        os.remove(file.file_path)  # Delete file from storage
+        db.session.delete(file)
+        db.session.commit()
+
+        return {'Message': 'File deleted successfully'}, 200
+
+class PDFSummarizeResource(Resource):
+
+    @auth_required('token')
+    def get(self):
+        files = TextFile.query.filter_by(user_id=current_user.id).all()
+
+        if not files:
+            return {'Error': 'No files found'}, 404
+
+        summary_text = "Summary of PDFs: " + ", ".join(file.file_name for file in files)  # Placeholder summary
+        return {'summary': summary_text}, 200
+
+api.add_resource(PDFFileResource, '/pdf_files')
+api.add_resource(PDFFileDeleteResource, '/pdf_files/<int:id>')
+api.add_resource(PDFSummarizeResource, '/pdf_summarize')
 api.add_resource(YouTubeLinkResource, "/youtube_links")
 api.add_resource(DeleteYouTubeLink, "/youtube_links/<int:id>")
 api.add_resource(SummarizeYouTubeLinks, "/summarize")
