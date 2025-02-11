@@ -1,5 +1,5 @@
 import Navbar from "../components/Navbar.js";
-import YouTubeSummarizer from "../components/YouTubeSummarizer.js";
+import YouTubeSummarizer from "../components/YoutubeSummarizer.js";
 import PDFSummarizer from "../components/PDFSummarizer.js";
 import ImageSummarizer from "../components/ImageSummarizer.js";
 
