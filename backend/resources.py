@@ -19,9 +19,6 @@ marshal_user = {
     'active' : fields.Boolean
 }
 
-
-cache = app.cache
-
 api = Api(prefix='/api')
 userdatastore = app.security.datastore
 

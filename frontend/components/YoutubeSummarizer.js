@@ -1,6 +1,6 @@
 import Navbar from "./Navbar.js"
 
-const InfluencerDashboard = {
+const YoutubeSummarizer = {
 
     template: `
     <div>

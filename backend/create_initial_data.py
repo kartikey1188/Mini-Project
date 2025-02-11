@@ -17,7 +17,7 @@ def initialize_data():
 
 
         if not datastore.find_user(email = 'user1@gmail.com'):
-            datastore.create_user(email = 'user1@gmail.com', password = hash_password('user1'), roles = ['user'] )
+            datastore.create_user(email = 'user1@gmail.com', username="user1", password = hash_password('user1'), roles = ['user'] )
        
 
         db.session.commit()

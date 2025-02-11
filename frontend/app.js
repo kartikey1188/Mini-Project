@@ -9,7 +9,7 @@ const app = new Vue({
 
         <div class="container mt-1">
         <div class="card">
-        <h4 class="text-success text-center">AI Powered Ultra Summarizer and Communicator</h4>
+        <h4 class="text-success text-center">AI Powered Ultra Summarizer</h4>
         </div>
         </div>
 

@@ -6,8 +6,7 @@ const LoginPage = {
 
       <form @submit.prevent="handleSubmit" id="login"> 
         <div class="text-center mb-4">
-          <h1><u>Login</u></h1>
-          <h4>User Login</h4>
+          <h1><u>User Login</u></h1>
         </div>
 
         <div class="d-flex justify-content-between align-items-center">
@@ -23,10 +22,10 @@ const LoginPage = {
             <input type="password" v-model="password" placeholder="Type Password" class="form-control" style="width: 500px;" required>
 
             <div class="mt-3">
-              <button type="submit" class="btn btn-outline-success mb-3">Login</button>
+              <button type="submit" class="btn btn-outline-success mb-2">Login</button>
             </div>
-            <div class="mt-3">
-              <b> In case you haven't registered as either a Sponsor or an Influencer, you may do so by clicking the appropriate link </b>
+            <div class="mt-1">
+              <div><b> In case you haven't registered, you may do so by clicking the following:</b></div>
               <router-link to="/user/registration" class="btn btn-outline-dark mt-2">Register</router-link>
             </div>
           </div>
@@ -71,7 +70,7 @@ const LoginPage = {
         console.log("User data stored.");
 
         this.$store.commit('setUser');
-        this.$router.push('/dashboard/user');
+        this.$router.push('/user/dashboard');
       } else {
         alert("Invalid email or password.");
         this.email = '';

@@ -23,7 +23,7 @@ const RegistrationPage = {
 
             <button type="submit" class="btn btn-outline-success mb-3 mt-3">Register</button>
           </form>
-          <router-link to="/user/login" class="btn btn-outline-primary mt-2">Go to Login</router-link>
+          <router-link to="/" class="btn btn-outline-primary mt-2">Go to Login</router-link>
         </div>
       </div>
     </div>

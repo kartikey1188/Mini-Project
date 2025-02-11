@@ -1,7 +1,6 @@
-import Navbar from "../components/LogOut.js"
-import Footer from "../components/Footer.js"
-
-const InfluencerDashboard = {
+import Navbar from "../components/Navbar.js"
+import YoutubeSummarizer from "./YoutubeSummarizer.js";
+const PDFSummarizer = {
 
   template: `<div>
   <Navbar></Navbar>
@@ -146,8 +145,8 @@ const InfluencerDashboard = {
   },
   components : { 
     Navbar,
-    Footer
+    YoutubeSummarizer
   }
 }  
 
-export default InfluencerDashboard;
+export default PDFSummarizer;

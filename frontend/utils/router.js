@@ -1,12 +1,13 @@
 import LoginPage from "../pages/LoginPage.js";
 import RegistrationPage from "../pages/RegistrationPage.js";
+import MainDashboard from "../pages/MainDashboard.js";
 
 import store from './store.js'
 
 const routes = [
     {path : '/', component : LoginPage},
     {path : '/user/registration', component : RegistrationPage, meta : {requiresLogin : true, role : "user"}},
-    {path : '/campaign/update/:campaign_id', component : UpdateCampaign, props : true, meta : {requiresLogin : true, role : "sponsor"}},
+    {path : '/user/dashboard', component : MainDashboard, meta : {requiresLogin : true, role : "user"}},
 ]
 
 const router = new VueRouter({

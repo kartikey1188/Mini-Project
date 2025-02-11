@@ -8,7 +8,7 @@ class Config(): # This is a base class that other configuration classes can inhe
 
 
 class LocalDevelopmentConfig(Config):
-    SQLALCHEMY_DATABASE_URI = "sqlite:///databas.sqlite3"
+    SQLALCHEMY_DATABASE_URI = "sqlite:///database.sqlite3"
     DEBUG = True # When DEBUG is True, Flask provides detailed error messages when something goes wrong.
     SECURITY_PASSWORD_HASH = 'bcrypt' # Specifies the hashing algorithm for passwords.
     SECURITY_PASSWORD_SALT = 'housecatboatcar' # Salt used in password hashing.
