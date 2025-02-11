@@ -8,6 +8,7 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     password = db.Column(db.String, nullable=False)
     email = db.Column(db.String, unique = True, nullable = False)
+    username = db.Column(db.String, nullable = False)
     image = db.Column(db.Text, unique = True)
     # flask-security specific columns:
     fs_uniquifier = db.Column(db.String, unique=True, nullable=False) # Unique identifier used by Flask-Security to handle token invalidation after password changes.

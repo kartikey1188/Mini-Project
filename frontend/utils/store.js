@@ -1,6 +1,7 @@
 const store = new Vuex.Store({
     state : {
         authen_token : null,
+        role : null,
         logged_In_ : false,
         userID : null,
     },
@@ -10,6 +11,7 @@ const store = new Vuex.Store({
              if (JSON.parse(localStorage.getItem('user'))){
                 const user = JSON.parse(localStorage.getItem('user'));
                 state.authen_token = user.token;
+                state.role = user.role;
                 state.logged_In_ = true;
                 state.userID = user.id;
              }
@@ -20,6 +22,7 @@ const store = new Vuex.Store({
 
         logOut(state){
             state.authen_token = null;
+            state.role = null;
             state.logged_In_ = false;
             state.userID = null;
 
