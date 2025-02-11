@@ -64,7 +64,7 @@ const RegistrationPage = {
 
       if (res.ok) {
         alert("Registration successful! You can log in now.");
-        this.$router.push('/user/login');
+        this.$router.push('/');
       } else if (res.status == 919) {
         alert("Invalid File Type; Allowed Types = ['.jpg', '.jpeg', '.png']");
         this.clearImage();

@@ -1,15 +1,13 @@
 from datetime import datetime
 import traceback
-from flask_restful import Api, Resource, marshal_with, marshal
+from flask_restful import Api, Resource, marshal_with, marshal, fields
 from flask import request
-from backend.models import db, User
+from backend.models import db, User, YouTubeLink
 from flask_security import auth_required, current_user, hash_password, verify_password
 import os
 from werkzeug.utils import secure_filename
 import uuid # UUID = Universally Unique Identifier
 from flask import current_app as app
-
-from flask_restful import fields
 
 marshal_user = {
     'password' : fields.String,
@@ -17,6 +15,11 @@ marshal_user = {
     'username' : fields.String,
     'image' : fields.String,
     'active' : fields.Boolean
+}
+
+marshal_link = {
+    "id": fields.Integer,
+    "url": fields.String
 }
 
 api = Api(prefix='/api')
@@ -73,6 +76,7 @@ class User_Resource(Resource):
                     user = userdatastore.create_user(
                         email=email,
                         password=hash_password(password),
+                        username = username,
                         roles=[userdatastore.find_role('user')],
                         fs_uniquifier=str(uuid.uuid4()),
                         image=image_path,
@@ -147,7 +151,77 @@ class User_Resource(Resource):
         except:
             db.session.rollback()
             return {"Error": "Failed to update user"}, 500
-    
+        
+
+class YouTubeLinkResource(Resource):
+    @auth_required("token")
+    @marshal_with(marshal_link)
+    def get(self):
+        """Fetches all YouTube links of the current user."""
+        try:
+            links = YouTubeLink.query.filter_by(user_id=current_user.id).all()
+            return links, 200
+        except Exception as e:
+            app.logger.error(traceback.format_exc())
+            return {"Error": "Failed to fetch links"}, 500
+
+    @auth_required("token")
+    def post(self):
+        """Adds a YouTube link for the current user."""
+        data = request.get_json()
+        url = data.get("url")
+
+        if not url:
+            return {"Error": "No URL provided"}, 400
+
+        try:
+            link = YouTubeLink(url=url, user_id=current_user.id)
+            db.session.add(link)
+            db.session.commit()
+            return {"Message": "Link added successfully", "id": link.id}, 200
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(traceback.format_exc())
+            return {"Error": "Failed to add link"}, 500
+
+class DeleteYouTubeLink(Resource):
+    @auth_required("token")
+    def delete(self, id):
+        """Deletes a YouTube link by ID (only if it belongs to the current user)."""
+        link = YouTubeLink.query.filter_by(id=id, user_id=current_user.id).first()
+
+        if not link:
+            return {"Error": "Link not found"}, 404
+
+        try:
+            db.session.delete(link)
+            db.session.commit()
+            return {"Message": "Link deleted successfully"}, 200
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(traceback.format_exc())
+            return {"Error": "Failed to delete link"}, 500
+
+class SummarizeYouTubeLinks(Resource):
+    @auth_required("token")
+    def get(self):
+        """Generates a summary based on the user's saved YouTube links."""
+        try:
+            links = YouTubeLink.query.filter_by(user_id=current_user.id).all()
+            if not links:
+                return {"Error": "No links found"}, 404
+
+            # Dummy summary generation (replace this with actual summarization logic)
+            summary = "Summary for {} videos.".format(len(links))
+
+            return {"summary": summary}, 200
+        except Exception as e:
+            app.logger.error(traceback.format_exc())
+            return {"Error": "Failed to generate summary"}, 500
+
+api.add_resource(YouTubeLinkResource, "/youtube_links")
+api.add_resource(DeleteYouTubeLink, "/youtube_links/<int:id>")
+api.add_resource(SummarizeYouTubeLinks, "/summarize")
 api.add_resource(Login, '/login') 
 api.add_resource(User_Resource, '/user', '/user/<int:id>')
 
