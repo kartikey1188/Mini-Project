@@ -1,4 +1,4 @@
-import Navbar from "../components/Navbar.js"
+import Navbar from "./Navbar.js"
 
 const InfluencerDashboard = {
 
@@ -30,4 +30,4 @@ const InfluencerDashboard = {
     
   }  
   
-  export default InfluencerDashboard;
+  export default YoutubeSummarizer;
