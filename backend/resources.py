@@ -152,6 +152,7 @@ class User_Resource(Resource):
             return {"Error": "Failed to update user"}, 500
     
 api.add_resource(Login, '/login') 
+api.add_resource(User_Resource, '/user', '/user/<int:id>')
 
 
 

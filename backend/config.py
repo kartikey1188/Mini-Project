@@ -18,7 +18,5 @@ class LocalDevelopmentConfig(Config):
     WTF_CSRF_ENABLED = False #  CSRF = Cross-Site Request Forgery
 
     # image specific
-    IMAGE_FOLDER = os.path.abspath('./backend/pictures/images')
-    GRAPH_FOLDER = os.path.abspath('./backend/pictures/graphs')
-    JOB_GRAPH_FOLDER = os.path.abspath('./backend/pictures/job_graphs')
+    IMAGE_FOLDER = os.path.abspath('./backend/pictures')
     ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png']
