@@ -8,6 +8,21 @@ import os
 from werkzeug.utils import secure_filename
 import uuid # UUID = Universally Unique Identifier
 from flask import current_app as app
+import google.generativeai as genai
+from youtube_transcript_api import YouTubeTranscriptApi
+from dotenv import load_dotenv
+from langchain.vectorstores import Chroma
+from langchain.document_loaders import TextLoader
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.schema import HumanMessage
+
+# Loading API Key
+load_dotenv()
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
+# Folder to store transcripts
+TRANSCRIPT_FOLDER = "backend/transcripts"
+os.makedirs(TRANSCRIPT_FOLDER, exist_ok=True)
 
 marshal_user = {
     'password' : fields.String,
@@ -211,13 +226,53 @@ class SummarizeYouTubeLinks(Resource):
             if not links:
                 return {"Error": "No links found"}, 404
 
-            # Dummy summary generation (replace this with actual summarization logic)
-            summary = "Summary for {} videos.".format(len(links))
+            transcript_texts = []
+            for link in links:
+                video_id = self.extract_video_id(link.url)
+                if not video_id:
+                    continue
+
+                transcript = self.get_youtube_transcript(video_id)
+                if transcript:
+                    transcript_file = os.path.join(TRANSCRIPT_FOLDER, f"{video_id}.txt")
+                    with open(transcript_file, "w", encoding="utf-8") as f:
+                        f.write(transcript)
+
+                    transcript_texts.append(transcript)
+
+            if not transcript_texts:
+                return {"Error": "No transcripts available"}, 500
+
+            combined_text = "\n\n".join(transcript_texts)
+            summary = self.generate_summary(combined_text)
 
             return {"summary": summary}, 200
+
         except Exception as e:
-            app.logger.error(traceback.format_exc())
+            traceback.print_exc()
             return {"Error": "Failed to generate summary"}, 500
+
+    def extract_video_id(self, url):
+        """Extracts video ID from YouTube URL."""
+        if "watch?v=" in url:
+            return url.split("watch?v=")[-1].split("&")[0]
+        elif "youtu.be/" in url:
+            return url.split("youtu.be/")[-1].split("?")[0]
+        return None
+
+    def get_youtube_transcript(self, video_id):
+        """Fetches transcript from YouTube."""
+        try:
+            transcript = YouTubeTranscriptApi.get_transcript(video_id)
+            return " ".join([t["text"] for t in transcript])
+        except Exception:
+            return None
+
+    def generate_summary(self, text):
+        """Uses LangChain with Gemini to summarize the given text."""
+        llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-exp")
+        response = llm.invoke([HumanMessage(content=f"Summarize the following text:\n\n{text}")])
+        return response.content
 
 from flask import request
 from backend.models import db, TextFile
@@ -244,7 +299,7 @@ class PDFFileResource(Resource):
             return {'Error': 'No file selected'}, 400
 
         filename = secure_filename(file.filename)
-        filepath = os.path.join("uploads", filename)  # Adjust path as needed
+        filepath = os.path.join("backend/files", filename)  # Adjust path as needed
 
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         file.save(filepath)

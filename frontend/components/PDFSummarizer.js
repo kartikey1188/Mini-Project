@@ -9,7 +9,6 @@ const PDFSummarizer = {
         <button @click="uploadFile" class="btn btn-primary" :disabled="!selectedFile">Upload</button>
       </div>
 
-
       <div class="row">
         <div class="col-md-6">
           <button @click="summarizeFiles" class="btn btn-success mt-3 w-100">Summarize</button>
@@ -21,7 +20,7 @@ const PDFSummarizer = {
           <h5 class="card-title">Your Uploaded PDFs</h5>
           <ul class="list-group">
             <li v-for="file in pdfFiles" :key="file.id" class="list-group-item d-flex justify-content-between align-items-center">
-              <span>{{ file.file_name }}</span>
+              <span><span @click="openFile(file.file_path)" class="text-primary" style="cursor: pointer;">{{ file.file_name }}</span></span>
               <button @click="deleteFile(file.id)" class="btn btn-danger btn-sm">Delete</button>
             </li>
           </ul>
@@ -34,6 +33,21 @@ const PDFSummarizer = {
           <p>{{ summary }}</p>
         </div>
       </div>
+
+      <!-- Talk to the Database Section -->
+      <div class="card mt-3">
+        <div class="card-body">
+          <h5 class="card-title">Talk to the Database</h5>
+          <div class="input-group mb-3">
+            <input v-model="query" type="text" class="form-control" placeholder="Enter your query" />
+            <button @click="askDatabase" class="btn btn-info">Ask</button>
+          </div>
+          <div v-if="dbResponse">
+            <h6>Response:</h6>
+            <p>{{ dbResponse }}</p>
+          </div>
+        </div>
+      </div>
     </div>
   `,
 
@@ -42,10 +56,16 @@ const PDFSummarizer = {
       selectedFile: null,
       pdfFiles: [],
       summary: "",
+      query: "",
+      dbResponse: "",
     };
   },
 
   methods: {
+    openFile(filePath) {
+      window.open(filePath, "_blank");
+    },
+    
     handleFileUpload(event) {
       this.selectedFile = event.target.files[0];
     },
@@ -73,7 +93,7 @@ const PDFSummarizer = {
     async fetchFiles() {
       const res = await fetch("/api/pdf_files", {
         headers: { "Authentication-Token": this.$store.state.authen_token },
-    });
+      });
       if (res.ok) {
         this.pdfFiles = await res.json();
       }
@@ -94,7 +114,7 @@ const PDFSummarizer = {
 
     async summarizeFiles() {
       const res = await fetch("/api/pdf_summarize", { 
-        method: "GET" ,
+        method: "GET",
         headers: { "Authentication-Token": this.$store.state.authen_token }
       });
 
@@ -103,6 +123,23 @@ const PDFSummarizer = {
         this.summary = data.summary;
       } else {
         alert("Failed to get summary.");
+      }
+    },
+
+    async askDatabase() {
+      if (!this.query.trim()) return alert("Please enter a query.");
+
+      const res = await fetch("/api/query_database", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authentication-Token": this.$store.state.authen_token },
+        body: JSON.stringify({ query: this.query }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        this.dbResponse = data.response;
+      } else {
+        alert("Failed to query the database.");
       }
     },
   },
