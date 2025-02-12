@@ -172,7 +172,7 @@ class YouTubeLinkResource(Resource):
     @auth_required("token")
     @marshal_with(marshal_link)
     def get(self):
-        """Fetches all YouTube links of the current user."""
+        #Fetches all YouTube links of the current user.
         try:
             links = YouTubeLink.query.filter_by(user_id=current_user.id).all()
             return links, 200
@@ -182,7 +182,7 @@ class YouTubeLinkResource(Resource):
 
     @auth_required("token")
     def post(self):
-        """Adds a YouTube link for the current user."""
+        #Adds a YouTube link for the current user.
         data = request.get_json()
         url = data.get("url")
 
@@ -202,7 +202,7 @@ class YouTubeLinkResource(Resource):
 class DeleteYouTubeLink(Resource):
     @auth_required("token")
     def delete(self, id):
-        """Deletes a YouTube link by ID (only if it belongs to the current user)."""
+        #Deletes a YouTube link by ID (only if it belongs to the current user).
         link = YouTubeLink.query.filter_by(id=id, user_id=current_user.id).first()
 
         if not link:
@@ -220,7 +220,7 @@ class DeleteYouTubeLink(Resource):
 class SummarizeYouTubeLinks(Resource):
     @auth_required("token")
     def get(self):
-        """Generates a summary based on the user's saved YouTube links."""
+        #Generates a summary based on the user's saved YouTube links.
         try:
             links = YouTubeLink.query.filter_by(user_id=current_user.id).all()
             if not links:
@@ -253,7 +253,7 @@ class SummarizeYouTubeLinks(Resource):
             return {"Error": "Failed to generate summary"}, 500
 
     def extract_video_id(self, url):
-        """Extracts video ID from YouTube URL."""
+        #Extracting video ID from YouTube URL.
         if "watch?v=" in url:
             return url.split("watch?v=")[-1].split("&")[0]
         elif "youtu.be/" in url:
@@ -261,7 +261,7 @@ class SummarizeYouTubeLinks(Resource):
         return None
 
     def get_youtube_transcript(self, video_id):
-        """Fetches transcript from YouTube."""
+        #Fetching transcript from YouTube."""
         try:
             transcript = YouTubeTranscriptApi.get_transcript(video_id)
             return " ".join([t["text"] for t in transcript])
@@ -269,7 +269,7 @@ class SummarizeYouTubeLinks(Resource):
             return None
 
     def generate_summary(self, text):
-        """Uses LangChain with Gemini to summarize the given text."""
+        #Using LangChain with Gemini to summarize the given text.
         llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-exp")
         response = llm.invoke([HumanMessage(content=f"Summarize the following text:\n\n{text}")])
         return response.content
